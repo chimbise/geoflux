@@ -95,7 +95,7 @@ const Footer = () => {
               </li>
               <li>
                 <MapPin size={18} />
-                <span>Plot 10224, Mokolwane Road, Boradhurst Industrial, Gaborone, South East</span>
+                <span>Plot 10224, Mokolwane Road, Broadhurst Industrial, Gaborone, South East</span>
               </li>
             </ul>
           </div>
