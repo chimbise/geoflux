@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import './Contact.css';
 
 const Contact = () => {
@@ -31,27 +30,30 @@ const Contact = () => {
     setFormStatus(null);
 
     try {
-      // Add document to Firestore
-      await addDoc(collection(db, 'messages'), {
-        ...formData,
-        timestamp: serverTimestamp(),
-        status: 'new'
-      });
-
-      setFormStatus('success');
+      // Call the Cloud Function
+      const functions = getFunctions();
+      const submitContactForm = httpsCallable(functions, 'submitContactForm');
       
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          company: '',
-          service: '',
-          message: ''
-        });
-        setFormStatus(null);
-      }, 3000);
+      const result = await submitContactForm(formData);
+
+      if (result.data.success) {
+        setFormStatus('success');
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            company: '',
+            service: '',
+            message: ''
+          });
+          setFormStatus(null);
+        }, 3000);
+      } else {
+        setFormStatus('error');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormStatus('error');
