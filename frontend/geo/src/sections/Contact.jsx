@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 import './Contact.css';
 
 const Contact = () => {
@@ -13,6 +15,7 @@ const Contact = () => {
   });
 
   const [formStatus, setFormStatus] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,24 +25,39 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Form submission logic would go here
-    console.log('Form submitted:', formData);
-    setFormStatus('success');
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        service: '',
-        message: ''
+    setIsSubmitting(true);
+    setFormStatus(null);
+
+    try {
+      // Add document to Firestore
+      await addDoc(collection(db, 'messages'), {
+        ...formData,
+        timestamp: serverTimestamp(),
+        status: 'new'
       });
-      setFormStatus(null);
-    }, 3000);
+
+      setFormStatus('success');
+      
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          service: '',
+          message: ''
+        });
+        setFormStatus(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setFormStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -245,9 +263,15 @@ const Contact = () => {
                 </div>
               )}
 
-              <button type="submit" className="btn btn-primary btn-lg btn-full">
+              {formStatus === 'error' && (
+                <div className="form-error">
+                  Sorry, there was an error submitting your message. Please try again or contact us directly.
+                </div>
+              )}
+
+              <button type="submit" className="btn btn-primary btn-lg btn-full" disabled={isSubmitting}>
                 <Send size={20} />
-                Send Message
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>

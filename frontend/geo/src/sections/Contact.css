@@ -209,6 +209,17 @@
   text-align: center;
 }
 
+.form-error {
+  grid-column: 1 / -1;
+  padding: var(--spacing-md);
+  background-color: #fee2e2;
+  border: 2px solid var(--error);
+  border-radius: var(--radius-md);
+  color: #991b1b;
+  font-weight: 600;
+  text-align: center;
+}
+
 @media (max-width: 968px) {
   .contact-content {
     grid-template-columns: 1fr;

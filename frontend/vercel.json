@@ -1,5 +1,0 @@
-{
-  "buildCommand": "cd frontend/geo && npm install && npm run build",
-  "outputDirectory": "frontend/geo/dist",
-  "installCommand": "cd frontend/geo && npm install"
-}
